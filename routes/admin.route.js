@@ -4,7 +4,8 @@ import { upload } from '../middlewares/multer.js'
 
 const adminRouter = express.Router()
 
-adminRouter.post('/add-doctor',upload.single('image'),addDoctor)
+adminRouter.post('/add-doctor', upload.single('image'), addDoctor);
 
+adminRouter.get('/add-doctor',addDoctor)
 
 export {adminRouter}

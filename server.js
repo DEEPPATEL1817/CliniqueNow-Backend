@@ -8,7 +8,7 @@ import { adminRouter } from './routes/admin.route.js'
 //app config
 
 const app = express()
-const PORT = process.env.PORT || 7000
+const PORT = process.env.PORT || 8000
 connectDB()
 connectCloudinary()
 
@@ -20,8 +20,6 @@ app.use(cors())
 app.use('/api/admin',adminRouter)
 //localhost:8000/api/admin/add-doctor
 
-app.get('/',(req,res)=>{
-    res.send('api working ')
-})
+
 
 app.listen(PORT,()=>console.log ("Server started",PORT))
