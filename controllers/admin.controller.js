@@ -6,6 +6,7 @@ import { v2 as cloudinary} from 'cloudinary'
 import { Doctor } from '../models/doctor.model.js'
 import { uploadOnCloudinary } from '../config/cloudinary.js'
 import { upload } from '../middlewares/multer.js'
+import jwt from 'jsonwebtoken'
 
 
 
@@ -98,4 +99,28 @@ const addDoctor = async (req,res) => {
     }
 }
 
-export {addDoctor}
+const adminLogin = async (req,res) => {
+    try {
+        const {email, password}=req.body
+
+        if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD){
+            
+            const token = jwt.sign(email + password, process.env.JWT_SECRET)
+
+            res.status(200).json({message:"JWT token is successfully created",token})
+        }
+        else{
+            res.status(400).json({message:"Invalid credentials"})
+        }
+
+        
+    } catch (error) {
+        console.log(400,"Registeration of new Doctor is Failed",error)
+    }
+}
+
+export {
+    addDoctor,
+    adminLogin, 
+
+}
