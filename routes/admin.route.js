@@ -6,6 +6,6 @@ const adminRouter = express.Router()
 
 adminRouter.post('/add-doctor', upload.single('image'), addDoctor);
 
-adminRouter.get('/add-doctor',addDoctor)
+
 
 export {adminRouter}
