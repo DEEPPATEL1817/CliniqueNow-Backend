@@ -8,6 +8,6 @@ const adminRouter = express.Router()
 adminRouter.post('/add-doctor',authAdmin, upload.single('image'), addDoctor);
 adminRouter.post('/admin-login', adminLogin);
 
-
+adminRouter
 
 export {adminRouter}
