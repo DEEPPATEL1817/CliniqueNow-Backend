@@ -4,6 +4,7 @@ import cors from 'cors'
 import connectDB from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
 import { adminRouter } from './routes/admin.route.js'
+import { doctorRouter } from './routes/doctor.route.js'
 
 //app config
 
@@ -19,6 +20,8 @@ app.use(cors())
 //api endpoint
 app.use('/api/admin',adminRouter)
 //localhost:8000/api/admin/add-doctor
+
+app.use('/api/doctor', doctorRouter)
 
 
 

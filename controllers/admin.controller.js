@@ -18,7 +18,7 @@ const addDoctor = async (req,res) => {
        
         // console.log("name &  email",name,email)
 
-        if([name,email,password,speciality,degree,experience,about,fees,address].some((field) => {return field?.trim()==="" }))
+        if([name,email,password,speciality,degree,experience,about,fees,address].some((field) => {return typeof field === "string" && field?.trim()==="" }))
         {
             return res.status(400).json({ message: "All fields are required" });
 
@@ -120,8 +120,22 @@ const adminLogin = async (req,res) => {
     }
 }
 
+//to get all doctor list for admin panel
+
+const allDoctor = async (req,res) => {
+    try {
+        const doctors = await Doctor.find({}).select('-password')
+        console.log("list of doctors",doctors)
+        res.status(200).json({doctors,message:"Fetched All Doctor"})
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({message:"Something went wrong to fetch all doctors"})
+    }
+}
+
 export {
     addDoctor,
     adminLogin, 
+    allDoctor
 
 }
