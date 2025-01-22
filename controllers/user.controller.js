@@ -47,11 +47,12 @@ const registerUser = async (req , res) =>{
 const userLogin = async (req,res) => {
     try {
         const {email,password} = req.body
+        console.log("recieved playoad from frontend",email,password)
 
         const user = await User.findOne({email})
 
         if (!user) {
-            res.status(400).json({message:"User does not exist"})
+            return res.status(400).json({message:"User does not exist"})
         }
 
         //matching password of user 
@@ -59,9 +60,9 @@ const userLogin = async (req,res) => {
 
         if (isPassword) {
             const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:process.env.EXPIRES_IN})
-            res.status(200).json({message:"password is correct and the token is :",token})
+            return res.status(200).json({message:"Welcome",token})
         }else{
-            res.status(400).json({message:"Invalid Credentials"})
+            return res.status(400).json({message:"Invalid Credentials"})
         }
 
 
@@ -71,7 +72,23 @@ const userLogin = async (req,res) => {
     }
 }
 
+//api to get user profile data from frontend
+
+const getProfile = async (req , res) => {
+    try {
+        const {userId } = req.body
+
+        const userData = await User.findById(userId).select('-password')
+
+        return res.status(200).json({mesage:"True",userData})
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        return res.status(500).json({ message: "Server error. Please try again later." });
+    }
+}
+
 export {
     registerUser,
     userLogin,
+    getProfile,
 }
