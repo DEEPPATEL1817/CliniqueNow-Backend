@@ -6,16 +6,17 @@ const authUser = async (req,res,next) =>{
     try {
         const{token : adminToken} = req.headers
        
-        if(!token){
+        if(!adminToken){
             
             return res.status(401).json({message:"Not authorized"})
         }
         
 
-        const decodeToken = jwt.verify(token, process.env.JWT_SECRET)
+        const decodeToken = jwt.verify(adminToken, process.env.JWT_SECRET)
         console.log("decodeToken",decodeToken)
         
-        req.body.userId = decodeToken.id
+        req.user = decodeToken.id
+        console.log("decode user ID :",req.user)
        
         next()
     } catch (error) {

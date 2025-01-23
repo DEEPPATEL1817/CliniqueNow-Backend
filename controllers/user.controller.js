@@ -3,6 +3,7 @@ import validator from 'validator'
 import bcrypt from 'bcrypt'
 import { User } from '../models/user.model.js'
 import jwt from 'jsonwebtoken'
+import { uploadOnCloudinary } from '../config/cloudinary.js'
 
 const registerUser = async (req , res) =>{
     try {
@@ -68,7 +69,7 @@ const userLogin = async (req,res) => {
 
     } catch (error) {
         console.error("Error during user login:", error);
-        return res.status(500).json({ message: "Server error. Please try again later." });
+        return res.status(500).json({ message: "Server error : Please try again later." });
     }
 }
 
@@ -76,14 +77,65 @@ const userLogin = async (req,res) => {
 
 const getProfile = async (req , res) => {
     try {
-        const {userId } = req.body
+        const userId  = req.user
+        console.log("user id received",userId)
+
+        if (!userId) {
+            return res.status(400).json({ message: "User ID missing" });
+          }
 
         const userData = await User.findById(userId).select('-password')
 
-        return res.status(200).json({mesage:"True",userData})
+        if (!userData) {
+            return res.status(404).json({message:"user not found "})
+        }
+        return res.status(200).json({mesage:"success",userData})
     } catch (error) {
         console.error("Error fetching user data:", error);
-        return res.status(500).json({ message: "Server error. Please try again later." });
+        return res.status(500).json({ message: "Server error: getting user data Please try again later." });
+    }
+}
+
+//api to update user profile
+//userID
+//taking user credential 
+//image
+//empty not 
+//upload on cloudinary 
+
+const updateUserProfile = async (req, res) =>{
+    try {
+        const { name ,phone ,dob,gender,address } = req.body
+
+        const userId = req.user;
+
+        console.log("userdata",userId , name ,phone ,dob,gender,address)
+       
+        const imageFile = req.file
+
+        console.log("image of" , imageFile)
+
+        if([name ,phone ,dob,gender].some((text) => text?.trim() === "")){
+            return res.status(400).json({message:"Data missing"})
+        }
+
+        await User.findByIdAndUpdate(userId,{name,phone,address,dob,gender})
+
+        if (imageFile) {
+            
+            const imageUpload = await uploadOnCloudinary(imageFile.path)
+
+            const imageUrl = imageUpload.secure_url
+
+            await User.findByIdAndUpdate(userId,{image:imageUrl})
+        }
+
+        return res.status(200).json({message:"user profile is updated successfully"})
+
+        
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        return res.status(500).json({ message: "Server error: Updating user data.Please try again later." });
     }
 }
 
@@ -91,4 +143,5 @@ export {
     registerUser,
     userLogin,
     getProfile,
+    updateUserProfile,
 }
