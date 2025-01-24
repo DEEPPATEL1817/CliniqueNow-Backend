@@ -121,6 +121,7 @@ const updateUserProfile = async (req, res) =>{
 
         await User.findByIdAndUpdate(userId,{name,phone,address,dob,gender})
 
+        console.log("this is address after update",address)
         if (imageFile) {
             
             const imageUpload = await uploadOnCloudinary(imageFile.path)
