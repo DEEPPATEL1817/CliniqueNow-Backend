@@ -4,7 +4,9 @@ import bcrypt from 'bcrypt'
 import { User } from '../models/user.model.js'
 import jwt from 'jsonwebtoken'
 import { uploadOnCloudinary } from '../config/cloudinary.js'
+import { Doctor } from '../models/doctor.model.js'
 
+import { UserAppointment } from '../models/appointment.model.js'
 const registerUser = async (req , res) =>{
     try {
         const {name, email, password} = req.body
@@ -140,9 +142,89 @@ const updateUserProfile = async (req, res) =>{
     }
 }
 
+//api for booking appointment 
+
+//user login 
+//doc available 
+//
+
+const bookAppointment = async (req, res) => {
+    try {
+        const {userId,docId, slotDate, slotTime} = req.body
+
+        const docData = await Doctor.findById(docId).select('-password')
+
+        if(!docData.available){
+            return res.status(401).json({message:"Doctor is not available"})
+        }
+
+        let slots_booked = docData.slots_booked || {}; // Ensure it's initialized as an empty object if not present
+
+
+        //checking for slot availability
+
+        if(slots_booked[slotDate]){
+            if(slots_booked[slotDate].includes(slotTime)){
+                return res.status(400).json({message: "This slot is already booked for this doctor"});
+            }
+            else{
+                slots_booked[slotDate].push(slotTime)
+            }
+        }else{
+            slots_booked[slotDate] = []
+            slots_booked[slotDate].push(slotTime)
+            
+        }
+
+        const userData = await User.findById(userId).select('-password')
+
+        
+        delete docData.slots_booked
+
+        const NewAppointmentData = await UserAppointment.create({
+            userId,
+            docId,
+            userData,
+            docData,
+            amount:docData.fees,
+            slotDate,
+            slotTime,
+            data: Date.now()
+        })
+
+        await NewAppointmentData.save()
+
+        //save new slots data in docData
+
+        await Doctor.findByIdAndUpdate(docId,{slots_booked})
+
+        res.status(200).json({message:"you have successfully book the appointment"})
+
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        return res.status(500).json({ message: "Server error: Booking an appointment.Please try again later." });
+    }
+}
+
+//api to get all user appointments 
+
+const allAppointments = async (req , res) => {
+    try {
+        const {userId} = req.body
+        const appointments = await UserAppointment.find({userId})
+
+        console.log("appointment data",appointments)
+        res.status(200).json({message:"Here is your all appointment ",appointments})
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        return res.status(500).json({ message: "Server error: In listing Appointments.Please try again later." });
+    }
+}
 export {
     registerUser,
     userLogin,
     getProfile,
     updateUserProfile,
+    bookAppointment,
+    allAppointments,
 }

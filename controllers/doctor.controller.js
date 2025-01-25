@@ -19,7 +19,8 @@ const doctorList = async (req,res) => {
     try {
         const doctors = await Doctor.find({}).select(['-password' , '-email'])
         res.status(200).json({message:"doctors lists",doctors})
-    
+
+        console.log("all doctors ",doctors)
     } catch (error) {
         console.log(error)
         res.status(400).json({message:"get all doctors list is failed",error})
