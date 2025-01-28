@@ -150,15 +150,22 @@ const updateUserProfile = async (req, res) =>{
 
 const bookAppointment = async (req, res) => {
     try {
-        const {userId,docId, slotDate, slotTime} = req.body
+        console.log("body che :",req.body)
+        const {docId, slotDate, slotTime,userId} = req.body
+        // const {userId} = req.user
+        console.log("data of bookappointment",docId, slotDate, slotTime,userId)
+        //  console.log("userID of bookapp",userId)
+         
 
         const docData = await Doctor.findById(docId).select('-password')
+
+        console.log("doctors data while booking",docData)
 
         if(!docData.available){
             return res.status(401).json({message:"Doctor is not available"})
         }
 
-        let slots_booked = docData.slots_booked || {}; // Ensure it's initialized as an empty object if not present
+        let slots_booked = docData.slots_booked ; // Ensure it's initialized as an empty object if not present
 
 
         //checking for slot availability
@@ -178,6 +185,7 @@ const bookAppointment = async (req, res) => {
 
         const userData = await User.findById(userId).select('-password')
 
+        console.log("data of user after booking",userData)
         
         delete docData.slots_booked
 
@@ -189,7 +197,7 @@ const bookAppointment = async (req, res) => {
             amount:docData.fees,
             slotDate,
             slotTime,
-            data: Date.now()
+            date: Date.now()
         })
 
         await NewAppointmentData.save()
@@ -220,6 +228,46 @@ const allAppointments = async (req , res) => {
         return res.status(500).json({ message: "Server error: In listing Appointments.Please try again later." });
     }
 }
+
+//api to cancel appoinments
+// user should be login 
+// id of Doctor
+// id of appointment
+
+const cancelAppointment = async (req , res ) => {
+
+    try {
+        const {userId, appointmentsId} = req.body
+
+        const appoinmentData = await UserAppointment.findById(appointmentsId)
+        console.log( "Appointment data is required." ,appoinmentData);
+
+        //verify appointment user 
+        if(appoinmentData.userId !== userId){
+            return res.status(400).json({message:"Unauthorized action !"})
+        }
+
+        await UserAppointment.findByIdAndUpdate(appointmentsId,{cancelled:true})
+
+        //after cancelling the appointment then time slot should be free
+
+        const {docId,slotDate,slotTime} = appoinmentData
+
+        const doctorData = await Doctor.findById(docId)
+
+        const slots_booked = doctorData.slots_booked
+
+        slots_booked[slotDate] = slots_booked[slotDate].filter( e => e !== slotTime)
+
+        await Doctor.findByIdAndUpdate(docId,{slots_booked})
+
+        res.status(200).json({message:"Appointment Canncelled"})
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        return res.status(500).json({ message: "Server error: In Cancelling Appointments.Please try again later." });
+    }
+}
+
 export {
     registerUser,
     userLogin,
@@ -227,4 +275,5 @@ export {
     updateUserProfile,
     bookAppointment,
     allAppointments,
+    cancelAppointment
 }
