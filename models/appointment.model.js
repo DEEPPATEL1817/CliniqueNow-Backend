@@ -3,35 +3,35 @@ import mongoose from "mongoose";
 const appointmentSchema = new mongoose.Schema({
     userId:{
         type:String,
-        require:true
+        required:true
     },
-    docID:{
+    docId:{
         type:String,
-        require:true
+        required:true
     },
     slotDate:{
         type:String,
-        require:true
+        required:true
     },
-    SlotTime:{
+    slotTime:{
         type:String,
-        require:true
+        required:true
     },
-    userDAta:{
+    userData:{
         type:Object,
-        require:true
+        required:true
     },
     docData:{
         type:Object,
-        require:true
+        required:true
     },
     amount:{
         type:Number,
-        require:true
+        required:true
     },
     date:{
         type:Number,
-        require:true
+        required:true
     },
     cancelled:{
         type:Boolean,

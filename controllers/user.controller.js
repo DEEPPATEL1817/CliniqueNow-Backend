@@ -151,8 +151,9 @@ const updateUserProfile = async (req, res) =>{
 const bookAppointment = async (req, res) => {
     try {
         console.log("body che :",req.body)
-        const {docId, slotDate, slotTime,userId} = req.body
-        // const {userId} = req.user
+        console.log("user id che " , req.userId)
+        const {docId, slotDate, slotTime} = req.body
+        const userId = req.user
         console.log("data of bookappointment",docId, slotDate, slotTime,userId)
         //  console.log("userID of bookapp",userId)
          
@@ -218,7 +219,7 @@ const bookAppointment = async (req, res) => {
 
 const allAppointments = async (req , res) => {
     try {
-        const {userId} = req.body
+        const userId = req.user
         const appointments = await UserAppointment.find({userId})
 
         console.log("appointment data",appointments)
@@ -237,9 +238,12 @@ const allAppointments = async (req , res) => {
 const cancelAppointment = async (req , res ) => {
 
     try {
-        const {userId, appointmentsId} = req.body
+        // console.log("cancellll:",userId,appointmentId)
+        const { appointmentId} = req.body
+        const userId = req.user
+        console.log("ddddddddddd:",userId,appointmentId)
 
-        const appoinmentData = await UserAppointment.findById(appointmentsId)
+        const appoinmentData = await UserAppointment.findById(appointmentId)
         console.log( "Appointment data is required." ,appoinmentData);
 
         //verify appointment user 
@@ -247,7 +251,7 @@ const cancelAppointment = async (req , res ) => {
             return res.status(400).json({message:"Unauthorized action !"})
         }
 
-        await UserAppointment.findByIdAndUpdate(appointmentsId,{cancelled:true})
+        await UserAppointment.findByIdAndUpdate(appointmentId,{cancelled:true})
 
         //after cancelling the appointment then time slot should be free
 
