@@ -1,4 +1,6 @@
 import { Doctor } from "../models/doctor.model.js"
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 const changeAvailablity = async (req,res) => {
     try {
@@ -27,4 +29,38 @@ const doctorList = async (req,res) => {
     }
 }
 
-export{changeAvailablity , doctorList}
+//api for doctor login
+
+const loginDoctor = async (req, res) => {
+    try {
+        const {email , password} = req.body
+
+        const doctor = await Doctor.findOne({email})
+
+        if(!doctor){
+            return res.status(300).json({message:"Invalid Credentials"})
+        }
+
+        const isMatch = await bcrypt.compare(password, doctor.password)
+
+        if(isMatch){
+            const doctorToken = jwt.sign({id:doctor._id},process.env.JWT_SECRET)
+
+            res.status(200).json({message:"doctor token is genereated", doctorToken})
+        }
+        else{
+            res.status(400).json({message:"Error: Doctor token is not generated"})
+        }
+
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({message:"Doctor Login is failed",error})
+    }
+}
+
+export{
+    changeAvailablity , 
+    doctorList,
+    loginDoctor
+
+}

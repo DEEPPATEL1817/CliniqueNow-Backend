@@ -5,8 +5,10 @@ import { User } from '../models/user.model.js'
 import jwt from 'jsonwebtoken'
 import { uploadOnCloudinary } from '../config/cloudinary.js'
 import { Doctor } from '../models/doctor.model.js'
-
 import { UserAppointment } from '../models/appointment.model.js'
+import Razorpay from 'razorpay'
+
+
 const registerUser = async (req , res) =>{
     try {
         const {name, email, password} = req.body
@@ -116,6 +118,7 @@ const updateUserProfile = async (req, res) =>{
         const imageFile = req.file
 
         console.log("image of" , imageFile)
+
 
         if([name ,phone ,dob,gender].some((text) => text?.trim() === "")){
             return res.status(400).json({message:"Data missing"})
@@ -271,6 +274,17 @@ const cancelAppointment = async (req , res ) => {
         return res.status(500).json({ message: "Server error: In Cancelling Appointments.Please try again later." });
     }
 }
+
+//api to make payment using razorpay
+
+// const razorPayInstance = new Razorpay({
+//     key_id:'',
+//     key_secret:''
+// })
+
+// const paymentRazorPay =  async(req ,res) =>{
+
+// }
 
 export {
     registerUser,
