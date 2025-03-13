@@ -5,7 +5,7 @@ import { UserAppointment } from "../models/appointment.model.js"
 
 const changeAvailablity = async (req,res) => {
     try {
-        const {docId} = req.body
+        const {docId} = req.docId
         
         const docData = await Doctor.findById(docId)
         await Doctor.findByIdAndUpdate(docId,{available: !docData.available })
@@ -62,7 +62,14 @@ const loginDoctor = async (req, res) => {
 //api to get doctor appointment for doctor panel 
 const appointmentsDoctor = async ( req, res)=> {
     try {
-        const {docId} = req.doctor
+        const {docId} = req.docId
+        console.log("docID in appointmentDoctor:",docId)
+
+        if(!docId){
+            console.log("docId is not fetched")
+            return res.status(301).json({message:"docId is not fetched"})
+        }
+        console.log("doctor id is correctly fetched",docId)
         
         const appointments = await UserAppointment.find({docId})
 
@@ -73,10 +80,60 @@ const appointmentsDoctor = async ( req, res)=> {
     }
 }
 
+// api to mark appointment completed for doctor panel 
+const appointmentComplete = async() => {
+    try {
+        const {docId, appointmentId} = req.body
+
+        const appointmentData = await UserAppointment.findById(appointmentId)
+
+        if (appointmentData && appointmentData.docId === docId) {
+            
+            await UserAppointment.findByIdAndUpdate(appointmentId,{isCompleted: true})
+
+            return res.status(200).json({message:"Appointment completed"})
+        } else{
+            return res.status(400).json({message:"Mark Failed"})
+        }
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({message:"Doctor  appointment mark  is not working ",error})
+    }
+}
+
+
+//api to cancel the appointment for the doctor
+
+const appointmentCancel = async() => {
+    try {
+        const {docId, appointmentId} = req.body
+
+        const appointmentData = await UserAppointment.findById(appointmentId)
+
+        if (appointmentData && appointmentData.docId === docId) {
+            
+            await UserAppointment.findByIdAndUpdate(appointmentId,{cancelled: true})
+
+            return res.status(200).json({message:"Appointment Cancelled"})
+        } else{
+            return res.status(400).json({message:"Cancellation of user appointment by doctor is Failed"})
+        }
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({message:"Doctor  appointment mark  is not working ",error})
+    }
+}
+
 export{
     changeAvailablity , 
     doctorList,
     loginDoctor,
-    appointmentsDoctor
+    appointmentsDoctor,
+    appointmentComplete,
+    appointmentCancel
 
 }

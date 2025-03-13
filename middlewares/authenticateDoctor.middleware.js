@@ -1,11 +1,10 @@
 import jwt from 'jsonwebtoken'
 
-
-//doctor authentication middleware 
+//Doctor authentication middleware 
 
 const authDoctor = async (req,res,next) =>{
     try {
-        const{token : doctorToken} = req.headers.doctorToken
+        const{token : doctorToken} = req.headers
        
         if(!doctorToken){
             
@@ -16,8 +15,8 @@ const authDoctor = async (req,res,next) =>{
         const decodeToken = jwt.verify(doctorToken, process.env.JWT_SECRET)
         console.log("decodeToken",decodeToken)
         
-        req.doctor = decodeToken.id
-        console.log("decode doctor ID :",req.doctor)
+        req.docId = decodeToken.id
+        console.log("decode doctor ID :",req.docId)
        
         next()
     } catch (error) {
