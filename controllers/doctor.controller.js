@@ -62,18 +62,20 @@ const loginDoctor = async (req, res) => {
 //api to get doctor appointment for doctor panel 
 const appointmentsDoctor = async ( req, res)=> {
     try {
-        const {docId} = req.docId
+        const docId = req.docId
         console.log("docID in appointmentDoctor:",docId)
 
         if(!docId){
             console.log("docId is not fetched")
-            return res.status(301).json({message:"docId is not fetched"})
+            return res.status(400).json({message:"docId is not fetched"})
         }
         console.log("doctor id is correctly fetched",docId)
         
         const appointments = await UserAppointment.find({docId})
 
-        res.status(200).json({message:"All appointment:",appointments})
+        res.status(200).json({appointments})
+
+        console.log("Appointments fetched:", appointments);
     } catch (error) {
         console.log(error)
         res.status(400).json({message:"Doctor all appointment  is failed to fetch",error})
@@ -81,9 +83,10 @@ const appointmentsDoctor = async ( req, res)=> {
 }
 
 // api to mark appointment completed for doctor panel 
-const appointmentComplete = async() => {
+const appointmentComplete = async(req,res) => {
     try {
-        const {docId, appointmentId} = req.body
+        const { appointmentId} = req.body
+        const docId = req.docId
 
         const appointmentData = await UserAppointment.findById(appointmentId)
 
@@ -93,7 +96,7 @@ const appointmentComplete = async() => {
 
             return res.status(200).json({message:"Appointment completed"})
         } else{
-            return res.status(400).json({message:"Mark Failed"})
+            return res.status(401).json({message:"Mark Failed"})
         }
 
 
@@ -106,9 +109,10 @@ const appointmentComplete = async() => {
 
 //api to cancel the appointment for the doctor
 
-const appointmentCancel = async() => {
+const appointmentCancel = async(req,res) => {
     try {
-        const {docId, appointmentId} = req.body
+        const { appointmentId} = req.body
+        const docId = req.docId
 
         const appointmentData = await UserAppointment.findById(appointmentId)
 
@@ -128,12 +132,50 @@ const appointmentCancel = async() => {
     }
 }
 
+//api to get dashboard data for doctor
+const doctorDashboard = async(req,res)=>{
+    try {
+        const docId = req.docId
+
+        const appointment = await UserAppointment.find({docId})
+
+        let earnings = 0
+
+        appointment.map((item)=>{
+            if(item.isCompleted || item.payment){
+                earnings += item.amount
+            }
+        })
+
+        let patients = []
+
+        appointment.map((item)=>{
+            if(!patients.includes(item.userId)){
+                patients.push(item.userId)
+            }
+        })
+
+        const dashData = {
+            earnings,
+            appointment: appointment.length,
+            patients: patients.length,
+            latestAppointments: appointment.reverse().slice(0,5)
+        }
+
+        res.status(200).json({message:"Dashborad data ",dashData})
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({message:"Data for Doctor Dashboard is not working ",error})
+    }
+}
+
 export{
     changeAvailablity , 
     doctorList,
     loginDoctor,
     appointmentsDoctor,
     appointmentComplete,
-    appointmentCancel
+    appointmentCancel,
+    doctorDashboard
 
 }

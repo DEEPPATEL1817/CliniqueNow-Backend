@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken'
 
 const authDoctor = async (req,res,next) =>{
     try {
-        const{token : doctorToken} = req.headers
+        const  doctorToken = req.headers.doctortoken ;
+        console.log("token form headers is recieve in backend:",doctorToken)
        
         if(!doctorToken){
             
@@ -20,7 +21,7 @@ const authDoctor = async (req,res,next) =>{
        
         next()
     } catch (error) {
-        return res.status(401).json({message:"Authenticatin fail"})
+        return res.status(401).json({message:"Authentication fail"})
     }
 }
 
