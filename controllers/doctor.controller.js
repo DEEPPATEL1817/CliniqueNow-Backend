@@ -169,6 +169,36 @@ const doctorDashboard = async(req,res)=>{
     }
 }
 
+
+const doctorProfile = async (req, res) => {
+    try {
+        const docId = req.docId
+
+        const profileData = await Doctor.findById(docId).select('-password')
+
+        res.status(200).json({message:"Doctor Profile:",profileData})
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({message:"Data for Doctor profile is not fetched ",error})
+    }
+}
+
+//api to update doctor profile data from Doctor panel 
+
+const updateDoctorProfile = async (req, res) => {
+    try {
+        const {fees,address,available} = req.body
+        const docId = req.docId
+
+        const DoctorData = await Doctor.findByIdAndUpdate(docId,{fees, address, available})
+
+        res.status(200).json({message:"Doctor Profile is updated "})
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({message:" Doctor profile is not updated ",error})
+    }
+}
+
 export{
     changeAvailablity , 
     doctorList,
@@ -176,6 +206,8 @@ export{
     appointmentsDoctor,
     appointmentComplete,
     appointmentCancel,
-    doctorDashboard
+    doctorDashboard,
+    doctorProfile,
+    updateDoctorProfile
 
 }
