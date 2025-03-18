@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
     },
     dob:{
         type:Date,
-        default:"Not Selected"
+        default:null
     },
     phone:{
         type:String,
