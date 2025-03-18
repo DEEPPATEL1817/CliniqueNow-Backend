@@ -16,7 +16,9 @@ connectCloudinary()
 
 //middleware 
 app.use(express.json()) 
-app.use(cors())
+app.use(cors({
+    origin: 'https://cliniquenow-frontend.onrender.com',
+    credentials: true,}))
 
 //api endpoint
 app.use('/api/admin',adminRouter)
