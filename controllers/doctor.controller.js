@@ -39,7 +39,7 @@ const loginDoctor = async (req, res) => {
         const doctor = await Doctor.findOne({email})
 
         if(!doctor){
-            return res.status(300).json({message:"Invalid Credentials"})
+            return res.status(400).json({message:"Invalid Credentials"})
         }
 
         const isMatch = await bcrypt.compare(password, doctor.password)
